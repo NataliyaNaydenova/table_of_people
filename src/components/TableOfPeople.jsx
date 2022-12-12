@@ -6,6 +6,8 @@ const ENDPOINT = "http://apis.chromeye.com:9191";
 function TableOfPeople() {
   const [data, setData] = useState([]);
   const [viewPerPage, setViewPerPage] = useState("3");
+  const [result, setResult] = useState([]);
+  const [page, setPage] = useState(1);
 
   const fetchData = () => {
     return fetch(`${ENDPOINT}/people`)
@@ -16,6 +18,10 @@ function TableOfPeople() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    setResult(data?.slice((page-1) * viewPerPage, viewPerPage === "all" ? data.length : page * viewPerPage ));    
+  }, [data, viewPerPage, page]);
 
   return (
     <div className="table-container">
@@ -33,8 +39,7 @@ function TableOfPeople() {
           </tr>
         </thead>
         <tbody>
-          {data
-            ?.splice(0, viewPerPage === "all" ? data.length : viewPerPage)
+          {result
             .map((item) => {
               return (
                 <tr key={item.id}>
@@ -53,7 +58,17 @@ function TableOfPeople() {
             })}
         </tbody>
       </table>
-      {/* <TableFooter range={range} slice={slice} setPage={setPage} page={page} /> */}
+      <div>
+            <button onClick={() => {return page > 1 ? setPage(page-1) : ""}}>Prev</button>
+            {page}
+            <button onClick={() => {return page < (data.length / viewPerPage) ? setPage(page+1) : ""}}>Next</button>
+            
+            <select onChange={(e) => {setViewPerPage(e.target.value)}}>
+              <option>3</option>
+              <option>5</option>
+              <option>all</option>
+            </select>
+      </div>
     </div>
   );
 }
